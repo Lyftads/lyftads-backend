@@ -342,5 +342,22 @@ router.get('/status/:clientId', requireAuth, async (req, res) => {
   });
   res.json(status);
 });
-
+router.post('/tokens/manual', requireAuth, async (req, res) => {
+  const { clientId, platform, access_token, account_id, account_name } = req.body;
+  try {
+    const { encryptToken } = require('../models/db');
+    await query(`
+      INSERT INTO platform_tokens (client_id, platform, access_token, account_id, account_name, last_refreshed)
+      VALUES ($1, $2, $3, $4, $5, NOW())
+      ON CONFLICT (client_id, platform) DO UPDATE SET
+        access_token = EXCLUDED.access_token,
+        account_id = EXCLUDED.account_id,
+        account_name = EXCLUDED.account_name,
+        last_refreshed = NOW()
+    `, [clientId, platform, encryptToken(access_token), account_id, account_name]);
+    res.json({ success: true });
+  } catch(err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 module.exports = router;
