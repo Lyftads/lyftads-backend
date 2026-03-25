@@ -25,8 +25,8 @@ app.use(cors({
 }));
 
 /* ── Rate limiting ── */
-app.use('/auth', rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: 'Troppi tentativi, riprova tra 15 minuti.' }));
-app.use('/api', rateLimit({ windowMs: 60 * 1000, max: 200 }));
+app.use('/auth', rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: 'Troppi tentativi, riprova tra 15 minuti.', validate: {xForwardedForHeader: false} }));
+app.use('/api', rateLimit({ windowMs: 60 * 1000, max: 200, validate: {xForwardedForHeader: false} }));
 
 /* ── Parsing ── */
 app.use(express.json());
