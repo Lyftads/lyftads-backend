@@ -32,10 +32,11 @@ router.post('/login', async (req, res) => {
     if (!rows.length) return res.status(401).json({ error: 'Credenziali non valide.' });
     const valid = await bcrypt.compare(password, rows[0].password_hash);
     if (!valid) return res.status(401).json({ error: 'Credenziali non valide.' });
-    const token = jwt.sign({ userId: rows[0].id, email: rows[0].email }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+    const token = jwt.sign({ userId: rows[0].id, email: rows[0].email }, process.env.JWT_SECRET, { expiresIn: '30d' });
     res.json({ token, user: { id: rows[0].id, email: rows[0].email, name: rows[0].name } });
   } catch (err) {
-    res.status(500).json({ error: 'Errore login.' });
+    console.error('[LOGIN ERROR]', err.message, err.stack);
+    res.status(500).json({ error: 'Errore login.', detail: err.message });
   }
 });
 
